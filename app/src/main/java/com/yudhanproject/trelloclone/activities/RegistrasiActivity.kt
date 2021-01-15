@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yudhanproject.trelloclone.R
 import com.yudhanproject.trelloclone.firebase.FirestoreClass
@@ -22,8 +23,12 @@ import java.util.*
     lateinit var day_tanggal: String
     lateinit var month_tanggal: String
     lateinit var year_tanggal: String
+    lateinit var documentReference: DocumentReference
+    lateinit var mFirebaseFirestore: FirebaseFirestore
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+
+
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registrasi)
             val c = Calendar.getInstance()
@@ -54,7 +59,19 @@ import java.util.*
         val birth: String = birthDate.text.toString().trim(){it<= ' '}
         val password: String = passwordEdittext.text.toString().trim(){it<= ' '}
         mFirebaseAuth = FirebaseAuth.getInstance()
+        mFirebaseFirestore = FirebaseFirestore.getInstance()
+        val userID = mFirebaseAuth.currentUser!!.uid
+        documentReference = mFirebaseFirestore.collection("tanggalLahir").document(userID)
+        val userMap: MutableMap<String, String> = HashMap()
+        userMap["day"] = day_tanggal
+        userMap["month"] = month_tanggal
+        userMap["year"] = year_tanggal
+        userMap["birth"] = birth
+        documentReference.set(userMap)
+
+        /*mFirebaseAuth = FirebaseAuth.getInstance()
         val userID = mFirebaseAuth.currentUser?.uid
+        db = FirebaseFirestore.getInstance()
 
 
         if (userID != null) {
@@ -66,7 +83,7 @@ import java.util.*
                     .set(year_tanggal)
             db.collection("users").document(userID)
                     .set(birth)
-        }
+        }*/
 
 
         if (validateForm(name, email, birth, password)){

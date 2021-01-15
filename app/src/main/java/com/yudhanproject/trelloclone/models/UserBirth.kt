@@ -7,8 +7,10 @@ data class UserBirth (
         val day: String = "",
         val month: String = "",
         val year: String = "",
+        val harapan: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
+            parcel.readString()!!,
             parcel.readString()!!,
             parcel.readString()!!,
             parcel.readString()!!
@@ -18,8 +20,8 @@ data class UserBirth (
         parcel.writeString(day)
         parcel.writeString(month)
         parcel.writeString(year)
+        parcel.writeString(harapan)
     }
-
     override fun describeContents(): Int {
         return 0
     }

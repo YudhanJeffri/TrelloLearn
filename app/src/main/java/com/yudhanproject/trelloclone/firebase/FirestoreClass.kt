@@ -27,15 +27,6 @@ class FirestoreClass {
             Log.e(activity.javaClass.simpleName, "Error writing document")
             }
     }
-    fun registerUserBirth(activity: MainActivity, userInfo: UserBirth){
-        mFireStore.collection(Constants.USERS)
-                .document(getCurrentUserID())
-                .set(userInfo, SetOptions.merge())
-                .addOnSuccessListener {
-                }.addOnFailureListener {
-                    Log.e(activity.javaClass.simpleName, "Error writing document")
-                }
-    }
     fun getCurrentUserID(): String{
         val currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
@@ -43,21 +34,6 @@ class FirestoreClass {
             currentUserID = currentUser.uid
         }
         return currentUserID
-    }
-
-
-
-    fun signInUser(activity: LoginActivity){
-        mFireStore.collection(Constants.USERS)
-            .document(getCurrentUserID())
-            .get()
-            .addOnSuccessListener { document ->
-                val loggedInUser = document.toObject(User::class.java)
-                if (loggedInUser != null)
-                activity.signInSuccess(loggedInUser)
-            }.addOnFailureListener {
-                Log.e("SignInUser", "Error writing document")
-            }
     }
 
 }

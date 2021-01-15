@@ -4,32 +4,47 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
+import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yudhanproject.trelloclone.R
 import com.yudhanproject.trelloclone.adapter.BoardAdapter
 import com.yudhanproject.trelloclone.models.Board
+import com.yudhanproject.trelloclone.models.BoardHighlighted
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_my_profile.*
 import kotlinx.android.synthetic.main.activity_registrasi.*
 import kotlinx.android.synthetic.main.layout_birthdate.view.*
+import kotlinx.android.synthetic.main.layout_birthdate.view.cobaEdittext
+import kotlinx.android.synthetic.main.layout_harapan.*
+import kotlinx.android.synthetic.main.layout_harapan.view.*
 import org.joda.time.LocalDate
 import org.joda.time.Years
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.log
 
 
 class MainActivity : AppCompatActivity(){
@@ -39,33 +54,91 @@ class MainActivity : AppCompatActivity(){
     lateinit var day_birth: String
     lateinit var month_birth: String
     lateinit var year_birth: String
-
+    lateinit var birth: String
+    lateinit var harapanHidup: String
     lateinit var mGoogleSignInClient: GoogleSignInClient
+    lateinit var boardAdapter: BoardAdapter
+
+    private var layoutManager : RecyclerView.LayoutManager? = null
+    private var adapter : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         lateinit var calendar: Calendar
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        birth = usiaMain.text.toString()
+        harapanHidup = harapanText.text.toString()
+        Log.e("waduh", ""+harapanHidup)
         mFirebaseFirestore = FirebaseFirestore.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
+
+        val userID = mFirebaseAuth.currentUser!!.uid
+        val docRef = mFirebaseFirestore.collection("harapanHidup").document(userID)
+        docRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        harapanText.text = document.getString("harapan")
+                        if (harapanHidup ==  ""){
+                            harapanHidup()
+                            Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
+                        }
+                        if (isSignedIn()){
+                            googleBirthdate()
+                        } else {
+                            firebaseBirthdate()
+                        }
+                    } else {
+                        Toast.makeText(this,"no such document",Toast.LENGTH_LONG).show()
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("errorbro", "get failed with ", exception)
+                }
+
+
         if (isSignedIn()){
             Toast.makeText(this, "kamu pake google", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, "pake firebase", Toast.LENGTH_LONG).show()
         }
-
-        if (isSignedIn()){
-            googleBirthdate()
-        } else {
-            firebaseBirthdate()
-        }
         fab_create_board.setOnClickListener {
             startActivity(Intent(this, CreateBoardActivity::class.java))
         }
+        getHarapanHidup()
 
     }
 
+
+    fun getHarapanHidup(){
+        val userID = mFirebaseAuth.currentUser!!.uid
+        val docRef = mFirebaseFirestore.collection("harapanHidup").document(userID)
+            docRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document != null) {
+                                harapanText.text = document.getString("harapan")
+
+                            harapanHidup = harapanText.text.toString()
+
+                            Toast.makeText(this, "ternyata : $harapanHidup",Toast.LENGTH_LONG).show()
+
+                            //val exlist = generateDummyList(harapanHidup.toInt())
+                            //rv_board.adapter = BoardAdapter(exlist)
+                            rv_board.layoutManager = LinearLayoutManager(this)
+                            rv_board.setHasFixedSize(true)
+                            if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
+                                harapanHidup()
+                                Toast.makeText(this, "ternyata : $harapanHidup",Toast.LENGTH_LONG).show()
+                            }
+                        } else {
+                            Toast.makeText(this,"no such document",Toast.LENGTH_LONG).show()
+                        }
+
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("errorbro", "get failed with ", exception)
+                    }
+    }
     private fun openDialogBirthdate(){
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.layout_birthdate, null)
         val mBuilder = AlertDialog.Builder(this)
@@ -92,6 +165,7 @@ class MainActivity : AppCompatActivity(){
 
         mDialogView.btn_lanjut.setOnClickListener {
             mAlertDialog.dismiss()
+
             val birth: String = mDialogView.cobaEdittext.text.toString().trim(){it<= ' '}
             mFirebaseAuth = FirebaseAuth.getInstance()
             val userID = mFirebaseAuth.currentUser!!.uid
@@ -101,26 +175,76 @@ class MainActivity : AppCompatActivity(){
             userMap["month"] = month_birth
             userMap["year"] = year_birth
             userMap["birth"] = birth
+
+            val birthdate = LocalDate(year_birth.toInt(), month_birth.toInt(), day_birth.toInt())
+            val now = LocalDate()
+            val age = Years.yearsBetween(birthdate, now)
+            val umurku = age.toString()
+            val a = umurku.replace(Regex("""[P,Y]"""), "")
+            usiaMain.text = "umur : $a"
             documentReference.set(userMap).addOnSuccessListener {
                 Toast.makeText(this,"success added",Toast.LENGTH_LONG).show()
             }
-            startActivity(Intent(this,MainActivity::class.java))
-            finish()
+            val harapantext: String = harapanText.text.toString().trim(){it<= ' '}
+            if (harapantext == "null"){
+                harapanHidup()
+            } else {
+                Toast.makeText(this,"harapan udah ada",Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     fun harapanHidup(){
-        val mDialogView = LayoutInflater.from(this).inflate(R.layout.layout_birthdate, null)
+        mFirebaseAuth = FirebaseAuth.getInstance()
+        val userID = mFirebaseAuth.currentUser!!.uid
+        val mDialogView = LayoutInflater.from(this).inflate(R.layout.layout_harapan, null)
         val mBuilder = AlertDialog.Builder(this)
                 .setView(mDialogView)
-        mDialogView.cobaEdittext.inputType = InputType.TYPE_NULL
         val mAlertDialog = mBuilder.show()
         mAlertDialog.setCancelable(false)
+        val hh = mDialogView.findViewById<EditText>(R.id.harapanEdittext)
+        hh.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+            override fun afterTextChanged(s: Editable?) {
+
+                val c = Runnable {
+                    val harapan:String = mDialogView.harapanEdittext.text.toString().trim(){it<= ' '}
+                    mFirebaseAuth = FirebaseAuth.getInstance()
+                    documentReference = mFirebaseFirestore.collection("harapanHidup").document(userID)
+                    val userMap: MutableMap<String, String> = HashMap()
+                    userMap["harapan"] = harapan
+                    documentReference.set(userMap)
+                }
+                val hand = Handler()
+                hand.postDelayed(c,1)
+            }
+        })
+
+        mDialogView.btn_selesai.setOnClickListener {
+            val docRef = mFirebaseFirestore.collection("harapanHidup").document(userID)
+            docRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document != null) {
+                            harapanText.text = document.getString("harapan")
+                        } else {
+                            Log.e("error", "No such document")
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("errorbro", "get failed with ", exception)
+                    }
+            mAlertDialog.dismiss()
+            /*startActivity(Intent(this,MainActivity::class.java))
+            finish()*/
+        }
+
     }
 
     private fun googleBirthdate(){
         val userID = mFirebaseAuth.currentUser!!.uid
-        Log.e("iniUID", userID)
 
         val docRef = mFirebaseFirestore.collection("users").document(userID)
         docRef.get()
@@ -129,6 +253,7 @@ class MainActivity : AppCompatActivity(){
                         day_birth = document.getString("day").toString()
                         month_birth = document.getString("month").toString()
                         year_birth = document.getString("year").toString()
+
 
                         if (day_birth == "null" && month_birth == "null" && year_birth == "null") {
                             openDialogBirthdate()
@@ -144,7 +269,8 @@ class MainActivity : AppCompatActivity(){
                             val a = umurku.replace(Regex("""[P,Y]"""), "")
                             usiaMain.text = "umur : $a"
                             val exlist = generateDummyList(a.toInt())
-                            rv_board.adapter = BoardAdapter(exlist)
+                            val highlightedlist = generateHighlighted(a.toInt())
+                            rv_board.adapter = BoardAdapter(exlist,highlightedlist,a)
                             rv_board.layoutManager = LinearLayoutManager(this)
                             rv_board.setHasFixedSize(true)
                         }
@@ -170,8 +296,8 @@ class MainActivity : AppCompatActivity(){
                         val umurku = age.toString()
                         val a = umurku.replace(Regex("""[P,Y]"""), "")
                         usiaMain.text = "umur : $a"
-                        val exlist = generateDummyList(a.toInt())
-                        rv_board.adapter = BoardAdapter(exlist)
+                        //val exlist = generateDummyList(a.toInt())
+                        //rv_board.adapter = BoardAdapter(exlist)
                         rv_board.layoutManager = LinearLayoutManager(this)
                         rv_board.setHasFixedSize(true)
                     } else {
@@ -187,10 +313,24 @@ class MainActivity : AppCompatActivity(){
     private fun isSignedIn(): Boolean {
         return GoogleSignIn.getLastSignedInAccount(this) != null
     }
+    private fun generateHighlighted(size: Int): List<BoardHighlighted> {
+        val list = ArrayList<BoardHighlighted>()
+        val value = Integer.valueOf(harapanHidup)
+        for (i in 1 until value) {
+            val drawable = when (i % 1) {
+                0 -> R.drawable.ic_baseline_add_24
+                else -> R.drawable.common_full_open_on_phone
+            }
+            val item = BoardHighlighted(drawable, "Umur $i")
+            list += item
+        }
+        return list
+    }
 
     private fun generateDummyList(size: Int): List<Board> {
         val list = ArrayList<Board>()
-        for (i in 1 until size) {
+        val value = Integer.valueOf(harapanHidup)
+        for (i in 1 until value) {
             val drawable = when (i % 1) {
                 0 -> R.drawable.ic_launcher_foreground
                 else -> R.drawable.common_full_open_on_phone
@@ -206,7 +346,7 @@ class MainActivity : AppCompatActivity(){
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected  (item: MenuItem): Boolean {
         when (item.itemId){
             R.id.menu_signout -> {
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
