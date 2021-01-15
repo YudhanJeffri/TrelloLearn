@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity(){
     lateinit var harapanHidup: String
     lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var boardAdapter: BoardAdapter
+    lateinit var getHarapanHidup: String
 
     private var layoutManager : RecyclerView.LayoutManager? = null
     private var adapter : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>? = null
@@ -74,27 +75,9 @@ class MainActivity : AppCompatActivity(){
         mFirebaseAuth = FirebaseAuth.getInstance()
 
         val userID = mFirebaseAuth.currentUser!!.uid
-        val docRef = mFirebaseFirestore.collection("harapanHidup").document(userID)
-        docRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        harapanText.text = document.getString("harapan")
-                        if (harapanHidup ==  ""){
-                            harapanHidup()
-                            Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
-                        }
-                        if (isSignedIn()){
-                            googleBirthdate()
-                        } else {
-                            firebaseBirthdate()
-                        }
-                    } else {
-                        Toast.makeText(this,"no such document",Toast.LENGTH_LONG).show()
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("errorbro", "get failed with ", exception)
-                }
+        if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == "") {
+            getHarapanHidup()
+        }
 
 
         if (isSignedIn()){
@@ -105,7 +88,6 @@ class MainActivity : AppCompatActivity(){
         fab_create_board.setOnClickListener {
             startActivity(Intent(this, CreateBoardActivity::class.java))
         }
-        getHarapanHidup()
 
     }
 
@@ -121,17 +103,18 @@ class MainActivity : AppCompatActivity(){
                             harapanHidup = harapanText.text.toString()
 
                             Toast.makeText(this, "ternyata : $harapanHidup",Toast.LENGTH_LONG).show()
-
-                            //val exlist = generateDummyList(harapanHidup.toInt())
-                            //rv_board.adapter = BoardAdapter(exlist)
-                            rv_board.layoutManager = LinearLayoutManager(this)
-                            rv_board.setHasFixedSize(true)
                             if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
                                 harapanHidup()
                                 Toast.makeText(this, "ternyata : $harapanHidup",Toast.LENGTH_LONG).show()
                             }
                         } else {
                             Toast.makeText(this,"no such document",Toast.LENGTH_LONG).show()
+                        }
+
+                        if (isSignedIn()) {
+                            googleBirthdate()
+                        } else {
+                            firebaseBirthdate()
                         }
 
                     }
@@ -229,6 +212,7 @@ class MainActivity : AppCompatActivity(){
                     .addOnSuccessListener { document ->
                         if (document != null) {
                             harapanText.text = document.getString("harapan")
+                            getHarapanHidup =  harapanText.text.toString()
                         } else {
                             Log.e("error", "No such document")
                         }
@@ -244,41 +228,50 @@ class MainActivity : AppCompatActivity(){
     }
 
     private fun googleBirthdate(){
-        val userID = mFirebaseAuth.currentUser!!.uid
+        if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
+            harapanHidup()
+            Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
+        } else {
+            val userID = mFirebaseAuth.currentUser!!.uid
 
-        val docRef = mFirebaseFirestore.collection("users").document(userID)
-        docRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        day_birth = document.getString("day").toString()
-                        month_birth = document.getString("month").toString()
-                        year_birth = document.getString("year").toString()
-
-
-                        if (day_birth == "null" && month_birth == "null" && year_birth == "null") {
-                            openDialogBirthdate()
-                        } else {
+            val docRef = mFirebaseFirestore.collection("users").document(userID)
+            docRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document != null) {
                             day_birth = document.getString("day").toString()
                             month_birth = document.getString("month").toString()
                             year_birth = document.getString("year").toString()
-                            umurMain.text = "$day_birth/$month_birth/$year_birth"
-                            val birthdate = LocalDate(year_birth.toInt(), month_birth.toInt(), day_birth.toInt())
-                            val now = LocalDate()
-                            val age = Years.yearsBetween(birthdate, now)
-                            val umurku = age.toString()
-                            val a = umurku.replace(Regex("""[P,Y]"""), "")
-                            usiaMain.text = "umur : $a"
-                            val exlist = generateDummyList(a.toInt())
-                            val highlightedlist = generateHighlighted(a.toInt())
-                            rv_board.adapter = BoardAdapter(exlist,highlightedlist,a)
-                            rv_board.layoutManager = LinearLayoutManager(this)
-                            rv_board.setHasFixedSize(true)
+
+
+                            if (day_birth == "null" && month_birth == "null" && year_birth == "null") {
+                                openDialogBirthdate()
+                            } else {
+                                day_birth = document.getString("day").toString()
+                                month_birth = document.getString("month").toString()
+                                year_birth = document.getString("year").toString()
+                                umurMain.text = "$day_birth/$month_birth/$year_birth"
+                                val birthdate = LocalDate(year_birth.toInt(), month_birth.toInt(), day_birth.toInt())
+                                val now = LocalDate()
+                                val age = Years.yearsBetween(birthdate, now)
+                                val umurku = age.toString()
+                                val a = umurku.replace(Regex("""[P,Y]"""), "")
+                                usiaMain.text = "umur : $a"
+                                val exlist = generateDummyList(a.toInt())
+                                val highlightedlist = generateHighlighted(a.toInt())
+                                rv_board.adapter = BoardAdapter(exlist, highlightedlist, a)
+                                rv_board.layoutManager = LinearLayoutManager(this)
+                                rv_board.setHasFixedSize(true)
+                            }
                         }
                     }
-                }
+        }
     }
 
     private fun firebaseBirthdate(){
+        if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
+            harapanHidup()
+            Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
+        }
         val userID = mFirebaseAuth.currentUser!!.uid
         Log.e("iniUID", userID)
         val docRef = mFirebaseFirestore.collection("users").document(userID)
@@ -315,6 +308,7 @@ class MainActivity : AppCompatActivity(){
     }
     private fun generateHighlighted(size: Int): List<BoardHighlighted> {
         val list = ArrayList<BoardHighlighted>()
+        getHarapanHidup =  harapanText.text.toString()
         val value = Integer.valueOf(harapanHidup)
         for (i in 1 until value) {
             val drawable = when (i % 1) {
@@ -329,7 +323,10 @@ class MainActivity : AppCompatActivity(){
 
     private fun generateDummyList(size: Int): List<Board> {
         val list = ArrayList<Board>()
-        val value = Integer.valueOf(harapanHidup)
+        getHarapanHidup =  harapanText.text.toString()
+
+        val value = Integer.valueOf(getHarapanHidup)
+        Log.e("error", getHarapanHidup)
         for (i in 1 until value) {
             val drawable = when (i % 1) {
                 0 -> R.drawable.ic_launcher_foreground
