@@ -271,35 +271,37 @@ class MainActivity : AppCompatActivity(){
         if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
             harapanHidup()
             Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
-        }
-        val userID = mFirebaseAuth.currentUser!!.uid
-        Log.e("iniUID", userID)
-        val docRef = mFirebaseFirestore.collection("users").document(userID)
-        docRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        day_birth = document.getString("day").toString()
-                        month_birth = document.getString("month").toString()
-                        year_birth = document.getString("year").toString()
+        } else {
+            val userID = mFirebaseAuth.currentUser!!.uid
+            Log.e("iniUID", userID)
+            val docRef = mFirebaseFirestore.collection("users").document(userID)
+            docRef.get()
+                    .addOnSuccessListener { document ->
+                        if (document != null) {
+                            day_birth = document.getString("day").toString()
+                            month_birth = document.getString("month").toString()
+                            year_birth = document.getString("year").toString()
 
-                        umurMain.text = "$day_birth/$month_birth/$year_birth"
-                        val birthdate = LocalDate(year_birth.toInt(), month_birth.toInt(), day_birth.toInt())
-                        val now = LocalDate()
-                        val age = Years.yearsBetween(birthdate, now)
-                        val umurku = age.toString()
-                        val a = umurku.replace(Regex("""[P,Y]"""), "")
-                        usiaMain.text = "umur : $a"
-                        //val exlist = generateDummyList(a.toInt())
-                        //rv_board.adapter = BoardAdapter(exlist)
-                        rv_board.layoutManager = LinearLayoutManager(this)
-                        rv_board.setHasFixedSize(true)
-                    } else {
-                        Log.e("error", "No such document")
+                            umurMain.text = "$day_birth/$month_birth/$year_birth"
+                            val birthdate = LocalDate(year_birth.toInt(), month_birth.toInt(), day_birth.toInt())
+                            val now = LocalDate()
+                            val age = Years.yearsBetween(birthdate, now)
+                            val umurku = age.toString()
+                            val a = umurku.replace(Regex("""[P,Y]"""), "")
+                            usiaMain.text = "umur : $a"
+                            val exlist = generateDummyList(a.toInt())
+                            val highlightedlist = generateHighlighted(a.toInt())
+                            rv_board.adapter = BoardAdapter(exlist, highlightedlist, a)
+                            rv_board.layoutManager = LinearLayoutManager(this)
+                            rv_board.setHasFixedSize(true)
+                        } else {
+                            Log.e("error", "No such document")
+                        }
                     }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("errorbro", "get failed with ", exception)
-                }
+                    .addOnFailureListener { exception ->
+                        Log.e("errorbro", "get failed with ", exception)
+                    }
+        }
     }
 
 
