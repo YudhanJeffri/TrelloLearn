@@ -41,6 +41,9 @@ class LoginActivity : BaseActivity() {
         btn_google.setOnClickListener {
             signIn()
         }
+        btn_keRegistrasi.setOnClickListener {
+            startActivity(Intent(this,RegistrasiActivity::class.java))
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

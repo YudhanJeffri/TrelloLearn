@@ -12,10 +12,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/montserratregular"
-        android:text="umur sekarang"
+        android:text="Masaukkan Lama Harapan Hidup"
         android:textColor="@color/black"
         android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/harapanEdittext"
         app:layout_constraintStart_toStartOf="@+id/harapanEdittext"
         app:layout_constraintTop_toTopOf="parent" />
 

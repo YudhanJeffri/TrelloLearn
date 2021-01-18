@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -57,11 +58,9 @@ class MainActivity : AppCompatActivity(){
     lateinit var birth: String
     lateinit var harapanHidup: String
     lateinit var mGoogleSignInClient: GoogleSignInClient
-    lateinit var boardAdapter: BoardAdapter
     lateinit var getHarapanHidup: String
 
-    private var layoutManager : RecyclerView.LayoutManager? = null
-    private var adapter : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>? = null
+    val numberOfCollumn:Int = 3
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -178,8 +177,25 @@ class MainActivity : AppCompatActivity(){
     }
 
     fun harapanHidup(){
-        mFirebaseAuth = FirebaseAuth.getInstance()
         val userID = mFirebaseAuth.currentUser!!.uid
+        val docRef = mFirebaseFirestore.collection("users").document(userID)
+        docRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        day_birth = document.getString("day").toString()
+                        month_birth = document.getString("month").toString()
+                        year_birth = document.getString("year").toString()
+                        umurMain.text = "$day_birth/$month_birth/$year_birth"
+                        val birthdate = LocalDate(year_birth.toInt(), month_birth.toInt(), day_birth.toInt())
+                        val now = LocalDate()
+                        val age = Years.yearsBetween(birthdate, now)
+                        val umurku = age.toString()
+                        val a = umurku.replace(Regex("""[P,Y]"""), "")
+                        usiaMain.text = "umur : $a"
+                        birth = a
+                    }
+                }
+        mFirebaseAuth = FirebaseAuth.getInstance()
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.layout_harapan, null)
         val mBuilder = AlertDialog.Builder(this)
                 .setView(mDialogView)
@@ -207,22 +223,31 @@ class MainActivity : AppCompatActivity(){
         })
 
         mDialogView.btn_selesai.setOnClickListener {
-            val docRef = mFirebaseFirestore.collection("harapanHidup").document(userID)
-            docRef.get()
-                    .addOnSuccessListener { document ->
-                        if (document != null) {
-                            harapanText.text = document.getString("harapan")
-                            getHarapanHidup =  harapanText.text.toString()
-                        } else {
-                            Log.e("error", "No such document")
+            val verifharapan: String = mDialogView.harapanEdittext.text.toString().trim() { it <= ' ' }
+
+            Log.d("harapannnn", "" + birth)
+            Log.d("harapannnn", "" + verifharapan)
+            if (verifharapan <= birth) {
+                Toast.makeText(this, "harapan kurang dari umur", Toast.LENGTH_LONG).show()
+            } else {
+                Log.d("harapanbtn", "" + harapanHidup)
+                val docRef = mFirebaseFirestore.collection("harapanHidup").document(userID)
+                docRef.get()
+                        .addOnSuccessListener { document ->
+                            if (document != null) {
+                                harapanText.text = document.getString("harapan")
+                                getHarapanHidup = harapanText.text.toString()
+                            } else {
+                                Log.e("error", "No such document")
+                            }
                         }
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.e("errorbro", "get failed with ", exception)
-                    }
-            mAlertDialog.dismiss()
-            /*startActivity(Intent(this,MainActivity::class.java))
-            finish()*/
+                        .addOnFailureListener { exception ->
+                            Log.e("errorbro", "get failed with ", exception)
+                        }
+                mAlertDialog.dismiss()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
         }
 
     }
@@ -256,10 +281,11 @@ class MainActivity : AppCompatActivity(){
                                 val umurku = age.toString()
                                 val a = umurku.replace(Regex("""[P,Y]"""), "")
                                 usiaMain.text = "umur : $a"
+                                birth = a
                                 val exlist = generateDummyList(a.toInt())
                                 val highlightedlist = generateHighlighted(a.toInt())
                                 rv_board.adapter = BoardAdapter(exlist, highlightedlist, a)
-                                rv_board.layoutManager = LinearLayoutManager(this)
+                                rv_board.layoutManager = GridLayoutManager(this,numberOfCollumn)
                                 rv_board.setHasFixedSize(true)
                             }
                         }
@@ -289,10 +315,11 @@ class MainActivity : AppCompatActivity(){
                             val umurku = age.toString()
                             val a = umurku.replace(Regex("""[P,Y]"""), "")
                             usiaMain.text = "umur : $a"
+                            birth = a
                             val exlist = generateDummyList(a.toInt())
                             val highlightedlist = generateHighlighted(a.toInt())
                             rv_board.adapter = BoardAdapter(exlist, highlightedlist, a)
-                            rv_board.layoutManager = LinearLayoutManager(this)
+                            rv_board.layoutManager = GridLayoutManager(this,numberOfCollumn)
                             rv_board.setHasFixedSize(true)
                         } else {
                             Log.e("error", "No such document")
@@ -331,7 +358,7 @@ class MainActivity : AppCompatActivity(){
         Log.e("error", getHarapanHidup)
         for (i in 1 until value) {
             val drawable = when (i % 1) {
-                0 -> R.drawable.ic_launcher_foreground
+                0 -> R.drawable.ic_baseline_add_24
                 else -> R.drawable.common_full_open_on_phone
             }
             val item = Board(drawable, "Umur $i")
