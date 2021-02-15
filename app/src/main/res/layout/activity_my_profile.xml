@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MyProfileActivity">
+    tools:context=".activities.profile.MyProfileActivity">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/circleImageView"
@@ -88,29 +88,32 @@
         app:layout_constraintStart_toStartOf="@+id/textView6"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
-    <TextView
-        android:id="@+id/textView11"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="34dp"
-        android:fontFamily="@font/montserratbold"
-        android:text="Ganti Password"
-        android:textColor="#9C4AFF"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="@+id/tanggal_lahir"
-        app:layout_constraintTop_toBottomOf="@+id/tanggal_lahir" />
+        android:layout_margin="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/tanggal_lahir">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/montserratbold"
-        android:text="Edit Profile"
-        android:textColor="#9C4AFF"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView11"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView11"
-        app:layout_constraintTop_toTopOf="@+id/textView11" />
+        <Button
+            android:id="@+id/btn_gantipass"
+            android:layout_width="0dp"
+            android:layout_margin="5dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="@font/montserratbold"
+            android:text="Ganti Password"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/btn_editprofile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:fontFamily="@font/montserratbold"
+            android:text="Edit Profile"
+            android:textColor="@color/white"/>
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

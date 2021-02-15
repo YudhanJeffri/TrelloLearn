@@ -49,10 +49,14 @@ dependencies {
 
     // firebase
     implementation "com.google.firebase:firebase-auth:20.0.1"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+
+    // FirebaseUI for Cloud Firestore
+    implementation 'com.firebaseui:firebase-ui-firestore:7.1.1'
+    implementation "com.firebaseui:firebase-ui-auth:3.0.0"
 
     // circle imageview
     implementation 'de.hdodenhof:circleimageview:3.1.0'
-
 
     // glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
@@ -64,4 +68,8 @@ dependencies {
 
     // joda
     implementation 'joda-time:joda-time:2.10.9'
+
+    //tiny db
+    implementation 'com.mukesh:tinydb:1.0.1'
+    
 }

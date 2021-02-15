@@ -1,4 +1,4 @@
-    package com.yudhanproject.trelloclone.activities
+    package com.yudhanproject.trelloclone.activities.autentikasi
 
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -16,9 +16,10 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yudhanproject.trelloclone.R
+import com.yudhanproject.trelloclone.activities.BaseActivity
+import com.yudhanproject.trelloclone.activities.MainActivity
 import com.yudhanproject.trelloclone.firebase.FirestoreClass
-import com.yudhanproject.trelloclone.models.User
-import kotlinx.android.synthetic.main.activity_login.*
+import com.yudhanproject.trelloclone.models.user.User
 import kotlinx.android.synthetic.main.activity_registrasi.*
 import java.util.*
 

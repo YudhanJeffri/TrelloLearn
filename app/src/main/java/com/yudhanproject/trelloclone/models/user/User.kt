@@ -1,4 +1,4 @@
-package com.yudhanproject.trelloclone.models
+package com.yudhanproject.trelloclone.models.user
 
 import android.os.Parcel
 import android.os.Parcelable

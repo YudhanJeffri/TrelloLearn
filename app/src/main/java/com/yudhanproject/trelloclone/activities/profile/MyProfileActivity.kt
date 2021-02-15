@@ -1,19 +1,21 @@
-package com.yudhanproject.trelloclone.activities
+ package com.yudhanproject.trelloclone.activities.profile
 
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.EditText
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firestore.v1.Document
-import com.squareup.okhttp.internal.DiskLruCache
 import com.yudhanproject.trelloclone.R
+import com.yudhanproject.trelloclone.activities.BaseActivity
 import kotlinx.android.synthetic.main.activity_my_profile.*
+import kotlinx.android.synthetic.main.layout_resetpassword.view.*
 
 class MyProfileActivity : BaseActivity() {
 
@@ -26,6 +28,38 @@ class MyProfileActivity : BaseActivity() {
         setContentView(R.layout.activity_my_profile)
         mFirebaseFirestore = FirebaseFirestore.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
+        val user = mFirebaseAuth.currentUser
+
+        btn_gantipass.setOnClickListener {
+            Toast.makeText(this,"Clicked",Toast.LENGTH_LONG).show()
+
+            val mDialogView = LayoutInflater.from(this).inflate(R.layout.layout_harapan, null)
+            val mBuilder = androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setView(mDialogView)
+            /*mBuilder.setMessage("Enter New Password > 6 Characters Long")
+            mBuilder.setPositiveButton("Yes") { _, _ ->
+                val edpassword = mDialogView.editText_ganti.text.toString()
+                user?.updatePassword(edpassword)?.addOnCanceledListener {
+                    Toast.makeText(this, "Password Reset Successfully", Toast.LENGTH_LONG).show()
+                }?.addOnFailureListener {
+                    Toast.makeText(this, "Password Reset Failed", Toast.LENGTH_LONG).show()
+                }*/
+
+
+            /*val reseted = EditText(this)
+            val alertDialogBuilder = AlertDialog.Builder(this)
+            alertDialogBuilder.setTitle("Reset Password?")
+            alertDialogBuilder.setMessage("Enter New Password > 6 Characters Long")
+            alertDialogBuilder.setView(reseted)
+            alertDialogBuilder.setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                val edpassword = reseted.text.toString()
+                user?.updatePassword(edpassword)?.addOnCanceledListener {
+                    Toast.makeText(this,"Password Reset Successfully",Toast.LENGTH_LONG).show()
+                }?.addOnFailureListener {
+                    Toast.makeText(this,"Password Reset Failed",Toast.LENGTH_LONG).show()
+                }
+            })*/
+        }
 
 
         // if google else firebase
@@ -34,6 +68,10 @@ class MyProfileActivity : BaseActivity() {
             Toast.makeText(this,"ini google",Toast.LENGTH_LONG).show()
         } else {
         getItemFirebase()
+        }
+
+        btn_editprofile.setOnClickListener {
+            startActivity(Intent(this,UpdateProfileActivity::class.java))
         }
 
     }
@@ -61,6 +99,7 @@ class MyProfileActivity : BaseActivity() {
                     Log.e("errorbro", "get failed with ", exception)
                 }
     }
+
 
     fun getItemFirebase() {
         val userID = mFirebaseAuth.currentUser!!.uid

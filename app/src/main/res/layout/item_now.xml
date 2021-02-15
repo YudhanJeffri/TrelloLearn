@@ -2,8 +2,7 @@
     android:layout_height="60dp"
     android:layout_width="match_parent"
     android:layout_margin="20dp"
-    android:backgroundTint="@color/black"
-    android:id="@+id/board_highglighted"
+    android:backgroundTint="@color/purple_500"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <TextView
         android:id="@+id/board_text"

@@ -3,7 +3,6 @@ package com.yudhanproject.trelloclone.utils
 import android.app.Activity
 import android.content.Intent
 import android.provider.MediaStore
-import com.yudhanproject.trelloclone.activities.MyProfileActivity
 
 object Constants{
     const val USERS: String = "users"

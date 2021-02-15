@@ -1,16 +1,11 @@
 package com.yudhanproject.trelloclone.firebase
 
-import android.content.Intent
 import android.util.Log
-import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.yudhanproject.trelloclone.activities.LoginActivity
-import com.yudhanproject.trelloclone.activities.MainActivity
-import com.yudhanproject.trelloclone.activities.RegistrasiActivity
-import com.yudhanproject.trelloclone.models.User
-import com.yudhanproject.trelloclone.models.UserBirth
+import com.yudhanproject.trelloclone.activities.autentikasi.RegistrasiActivity
+import com.yudhanproject.trelloclone.models.user.User
 import com.yudhanproject.trelloclone.utils.Constants
 
 class FirestoreClass {

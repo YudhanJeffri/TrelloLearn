@@ -13,39 +13,30 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
-import android.widget.SearchView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mukesh.tinydb.TinyDB
 import com.yudhanproject.trelloclone.R
+import com.yudhanproject.trelloclone.activities.autentikasi.LoginActivity
+import com.yudhanproject.trelloclone.activities.profile.MyProfileActivity
 import com.yudhanproject.trelloclone.adapter.BoardAdapter
-import com.yudhanproject.trelloclone.models.Board
-import com.yudhanproject.trelloclone.models.BoardHighlighted
+import com.yudhanproject.trelloclone.models.board.BoardDummy
+import com.yudhanproject.trelloclone.models.board.BoardHighlighted
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_my_profile.*
-import kotlinx.android.synthetic.main.activity_registrasi.*
 import kotlinx.android.synthetic.main.layout_birthdate.view.*
-import kotlinx.android.synthetic.main.layout_birthdate.view.cobaEdittext
-import kotlinx.android.synthetic.main.layout_harapan.*
 import kotlinx.android.synthetic.main.layout_harapan.view.*
 import org.joda.time.LocalDate
 import org.joda.time.Years
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.log
 
 
 class MainActivity : AppCompatActivity(){
@@ -59,19 +50,26 @@ class MainActivity : AppCompatActivity(){
     lateinit var harapanHidup: String
     lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var getHarapanHidup: String
+    public lateinit var umur : String
 
     val numberOfCollumn:Int = 3
+    var positionBoardHighlighted:Int = 0
+    var positionBoardDummy:Int = 0
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         lateinit var calendar: Calendar
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
         birth = usiaMain.text.toString()
         harapanHidup = harapanText.text.toString()
-        Log.e("waduh", ""+harapanHidup)
+        Log.e("waduh", "" + harapanHidup)
         mFirebaseFirestore = FirebaseFirestore.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
+
 
         val userID = mFirebaseAuth.currentUser!!.uid
         if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == "") {
@@ -83,9 +81,6 @@ class MainActivity : AppCompatActivity(){
             Toast.makeText(this, "kamu pake google", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, "pake firebase", Toast.LENGTH_LONG).show()
-        }
-        fab_create_board.setOnClickListener {
-            startActivity(Intent(this, CreateBoardActivity::class.java))
         }
 
     }
@@ -101,13 +96,13 @@ class MainActivity : AppCompatActivity(){
 
                             harapanHidup = harapanText.text.toString()
 
-                            Toast.makeText(this, "ternyata : $harapanHidup",Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "ternyata : $harapanHidup", Toast.LENGTH_LONG).show()
                             if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
                                 harapanHidup()
-                                Toast.makeText(this, "ternyata : $harapanHidup",Toast.LENGTH_LONG).show()
+                                Toast.makeText(this, "ternyata : $harapanHidup", Toast.LENGTH_LONG).show()
                             }
                         } else {
-                            Toast.makeText(this,"no such document",Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "no such document", Toast.LENGTH_LONG).show()
                         }
 
                         if (isSignedIn()) {
@@ -165,16 +160,17 @@ class MainActivity : AppCompatActivity(){
             val a = umurku.replace(Regex("""[P,Y]"""), "")
             usiaMain.text = "umur : $a"
             documentReference.set(userMap).addOnSuccessListener {
-                Toast.makeText(this,"success added",Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "success added", Toast.LENGTH_LONG).show()
             }
             val harapantext: String = harapanText.text.toString().trim(){it<= ' '}
             if (harapantext == "null"){
                 harapanHidup()
             } else {
-                Toast.makeText(this,"harapan udah ada",Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "harapan udah ada", Toast.LENGTH_LONG).show()
             }
         }
     }
+
 
     fun harapanHidup(){
         val userID = mFirebaseAuth.currentUser!!.uid
@@ -205,12 +201,14 @@ class MainActivity : AppCompatActivity(){
         hh.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
+
             override fun afterTextChanged(s: Editable?) {
 
                 val c = Runnable {
-                    val harapan:String = mDialogView.harapanEdittext.text.toString().trim(){it<= ' '}
+                    val harapan: String = mDialogView.harapanEdittext.text.toString().trim() { it <= ' ' }
                     mFirebaseAuth = FirebaseAuth.getInstance()
                     documentReference = mFirebaseFirestore.collection("harapanHidup").document(userID)
                     val userMap: MutableMap<String, String> = HashMap()
@@ -218,7 +216,7 @@ class MainActivity : AppCompatActivity(){
                     documentReference.set(userMap)
                 }
                 val hand = Handler()
-                hand.postDelayed(c,1)
+                hand.postDelayed(c, 1)
             }
         })
 
@@ -255,7 +253,7 @@ class MainActivity : AppCompatActivity(){
     private fun googleBirthdate(){
         if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
             harapanHidup()
-            Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "ternyata aaaaa: $harapanHidup", Toast.LENGTH_LONG).show()
         } else {
             val userID = mFirebaseAuth.currentUser!!.uid
 
@@ -280,13 +278,17 @@ class MainActivity : AppCompatActivity(){
                                 val age = Years.yearsBetween(birthdate, now)
                                 val umurku = age.toString()
                                 val a = umurku.replace(Regex("""[P,Y]"""), "")
+
+                                umur = a
+                                Log.d("umurini", umur)
                                 usiaMain.text = "umur : $a"
                                 birth = a
                                 val exlist = generateDummyList(a.toInt())
                                 val highlightedlist = generateHighlighted(a.toInt())
-                                rv_board.adapter = BoardAdapter(exlist, highlightedlist, a)
-                                rv_board.layoutManager = GridLayoutManager(this,numberOfCollumn)
+                                rv_board.adapter = BoardAdapter(exlist, highlightedlist, a, this)
+                                rv_board.layoutManager = GridLayoutManager(this, numberOfCollumn)
                                 rv_board.setHasFixedSize(true)
+
                             }
                         }
                     }
@@ -296,7 +298,7 @@ class MainActivity : AppCompatActivity(){
     private fun firebaseBirthdate(){
         if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){
             harapanHidup()
-            Toast.makeText(this, "ternyata aaaaa: $harapanHidup",Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "ternyata aaaaa: $harapanHidup", Toast.LENGTH_LONG).show()
         } else {
             val userID = mFirebaseAuth.currentUser!!.uid
             Log.e("iniUID", userID)
@@ -318,8 +320,8 @@ class MainActivity : AppCompatActivity(){
                             birth = a
                             val exlist = generateDummyList(a.toInt())
                             val highlightedlist = generateHighlighted(a.toInt())
-                            rv_board.adapter = BoardAdapter(exlist, highlightedlist, a)
-                            rv_board.layoutManager = GridLayoutManager(this,numberOfCollumn)
+                            rv_board.adapter = BoardAdapter(exlist, highlightedlist, a, this)
+                            rv_board.layoutManager = GridLayoutManager(this, numberOfCollumn)
                             rv_board.setHasFixedSize(true)
                         } else {
                             Log.e("error", "No such document")
@@ -335,34 +337,30 @@ class MainActivity : AppCompatActivity(){
     private fun isSignedIn(): Boolean {
         return GoogleSignIn.getLastSignedInAccount(this) != null
     }
-    private fun generateHighlighted(size: Int): List<BoardHighlighted> {
+    private fun generateHighlighted(size: Int): ArrayList<BoardHighlighted> {
         val list = ArrayList<BoardHighlighted>()
         getHarapanHidup =  harapanText.text.toString()
         val value = Integer.valueOf(harapanHidup)
-        for (i in 1 until value) {
-            val drawable = when (i % 1) {
-                0 -> R.drawable.ic_baseline_add_24
-                else -> R.drawable.common_full_open_on_phone
-            }
-            val item = BoardHighlighted(drawable, "Umur $i")
+        for (i in 1..value) {
+            // BoardAdapter.VIEW_TYPE_ONE
+            val item = BoardHighlighted("Umur $i", itemPositionHighlighted = 1)
             list += item
+            Log.d("itemPositionHighlighted", item.itemPositionHighlighted.toString())
         }
+
         return list
     }
 
-    private fun generateDummyList(size: Int): List<Board> {
-        val list = ArrayList<Board>()
+    private fun generateDummyList(size: Int): ArrayList<BoardDummy> {
+        val list = ArrayList<BoardDummy>()
         getHarapanHidup =  harapanText.text.toString()
 
         val value = Integer.valueOf(getHarapanHidup)
-        Log.e("error", getHarapanHidup)
-        for (i in 1 until value) {
-            val drawable = when (i % 1) {
-                0 -> R.drawable.ic_baseline_add_24
-                else -> R.drawable.common_full_open_on_phone
-            }
-            val item = Board(drawable, "Umur $i")
+        for (i in 1..value) {
+            // BoardAdapter.VIEW_TYPE_TWO
+            val item = BoardDummy("Umur $i", itemPositionDummy = 0)
             list += item
+            Log.d("itemPositionHighlighted", item.itemPositionDummy.toString())
         }
         return list
     }
@@ -372,7 +370,7 @@ class MainActivity : AppCompatActivity(){
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected  (item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId){
             R.id.menu_signout -> {
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

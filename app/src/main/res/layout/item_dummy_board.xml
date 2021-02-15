@@ -2,8 +2,7 @@
     android:layout_height="60dp"
     android:layout_width="match_parent"
     android:layout_margin="20dp"
-    android:backgroundTint="@color/black"
-    android:id="@+id/board_highglighted"
+    android:background="@drawable/stroke_btn"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <TextView
         android:id="@+id/board_text"
@@ -11,5 +10,5 @@
         android:layout_height="wrap_content"
         android:text="hello"
         android:layout_gravity="center"
-        android:textColor="@color/white"/>
+        android:textColor="@color/black"/>
 </androidx.cardview.widget.CardView>

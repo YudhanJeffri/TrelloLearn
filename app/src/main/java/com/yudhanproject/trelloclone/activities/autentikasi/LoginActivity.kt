@@ -1,4 +1,4 @@
-package com.yudhanproject.trelloclone.activities
+package com.yudhanproject.trelloclone.activities.autentikasi
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +12,9 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.yudhanproject.trelloclone.R
-import com.yudhanproject.trelloclone.models.User
+import com.yudhanproject.trelloclone.activities.BaseActivity
+import com.yudhanproject.trelloclone.activities.MainActivity
+import com.yudhanproject.trelloclone.models.user.User
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : BaseActivity() {
@@ -42,7 +44,7 @@ class LoginActivity : BaseActivity() {
             signIn()
         }
         btn_keRegistrasi.setOnClickListener {
-            startActivity(Intent(this,RegistrasiActivity::class.java))
+            startActivity(Intent(this, RegistrasiActivity::class.java))
         }
     }
 

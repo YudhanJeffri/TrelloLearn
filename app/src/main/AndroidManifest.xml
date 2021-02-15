@@ -11,13 +11,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TrelloClone">
-        <activity android:name=".activities.CreateBoardActivity"></activity>
-        <activity android:name=".activities.UpdateProfileActivity" />
-        <activity android:name=".activities.MyProfileActivity" />
+        <receiver
+            android:name=".service.ReminderBroadcast"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.NOTIFY" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".activities.UpdateTaskActivity" />
+        <activity android:name=".activities.TaskActivity" />
+        <activity android:name=".activities.CreateTaskActivity" />
+        <activity android:name=".activities.profile.UpdateProfileActivity" />
+        <activity android:name=".activities.profile.MyProfileActivity" />
         <activity android:name=".activities.BaseActivity" />
         <activity android:name=".activities.MainActivity" />
         <activity
-            android:name=".activities.FirstActivity"
+            android:name=".activities.autentikasi.FirstActivity"
             android:theme="@style/Noactbar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,10 +37,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".activities.autentikasi.LoginActivity"
             android:theme="@style/Noactbar" />
         <activity
-            android:name=".activities.RegistrasiActivity"
+            android:name=".activities.autentikasi.RegistrasiActivity"
             android:theme="@style/Noactbar" />
     </application>
 

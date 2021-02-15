@@ -1,19 +1,10 @@
-package com.yudhanproject.trelloclone.activities
+package com.yudhanproject.trelloclone.activities.autentikasi
 
-import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.yudhanproject.trelloclone.R
-import com.yudhanproject.trelloclone.firebase.FirestoreClass
+import com.yudhanproject.trelloclone.activities.BaseActivity
 import kotlinx.android.synthetic.main.activity_first.*
-import org.joda.time.LocalDate
-import org.joda.time.Years
-import java.lang.Exception
-import java.util.*
 
 class FirstActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
