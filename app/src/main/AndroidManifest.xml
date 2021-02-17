@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TrelloClone">
         <receiver
+            android:name=".service.RepeatBroadcast"
+            android:enabled="true"
+            android:exported="true"></receiver>
+        <receiver
             android:name=".service.ReminderBroadcast"
             android:enabled="true"
             android:exported="true">

@@ -5,34 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
-    <TextView
-        android:id="@+id/umurMain"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="umur"
-        android:layout_margin="50dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/usiaMain"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:text="usia"
-        app:layout_constraintStart_toStartOf="@+id/umurMain"
-        app:layout_constraintTop_toBottomOf="@+id/umurMain" />
-
-    <TextView
-        android:id="@+id/harapanText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="harapan"
-        app:layout_constraintEnd_toEndOf="@+id/usiaMain"
-        app:layout_constraintHorizontal_bias="0.4"
-        app:layout_constraintStart_toStartOf="@+id/usiaMain"
-        app:layout_constraintTop_toBottomOf="@+id/usiaMain" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_board"

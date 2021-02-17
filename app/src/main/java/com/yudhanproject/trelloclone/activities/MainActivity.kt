@@ -61,12 +61,6 @@ class MainActivity : AppCompatActivity(){
         lateinit var calendar: Calendar
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
-
-        birth = usiaMain.text.toString()
-        harapanHidup = harapanText.text.toString()
-        Log.e("waduh", "" + harapanHidup)
         mFirebaseFirestore = FirebaseFirestore.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
 
@@ -92,9 +86,6 @@ class MainActivity : AppCompatActivity(){
             docRef.get()
                     .addOnSuccessListener { document ->
                         if (document != null) {
-                                harapanText.text = document.getString("harapan")
-
-                            harapanHidup = harapanText.text.toString()
 
                             Toast.makeText(this, "ternyata : $harapanHidup", Toast.LENGTH_LONG).show()
                             if (harapanHidup == "harapan" || harapanHidup == " " || harapanHidup == "null" || harapanHidup == ""){

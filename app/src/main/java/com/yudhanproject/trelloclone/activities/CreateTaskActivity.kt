@@ -1,4 +1,4 @@
-package com.yudhanproject.trelloclone.activities
+    package com.yudhanproject.trelloclone.activities
 
 import android.app.*
 import android.content.Context
@@ -69,7 +69,10 @@ class CreateTaskActivity : AppCompatActivity() {
         val day = c.get(Calendar.DAY_OF_MONTH)
         val month = c.get(Calendar.MONTH)
         val date = "${day + 1}/${month + 1}/$year"
-        val task = hashMapOf("title" to edTask, "tanggal_masadepan" to date)
+        val hari = "${day + 1}"
+        val bulan = "${month + 1}"
+        val tahun = "$year"
+        val task = hashMapOf("title" to edTask, "tanggal_masadepan" to date, "hari_masadepan" to hari, "bulan_masadepan" to bulan,"tahun_masadepan" to tahun)
         //Toast.makeText(this, newmonth.toString(), Toast.LENGTH_LONG).show()
         mFirebaseFirestore.collection(userID).document(tinyDB.getInt("getUmur").toString()).collection(
             userID
@@ -85,7 +88,7 @@ class CreateTaskActivity : AppCompatActivity() {
                 }
         tenDetik()
     }
-    fun tenDetik(){
+    private fun tenDetik(){
         Toast.makeText(this, "Reminder Set", Toast.LENGTH_LONG).show()
         val alarmmanager = getSystemService(ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, ReminderBroadcast::class.java)
@@ -93,7 +96,14 @@ class CreateTaskActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = System.currentTimeMillis()
         val month = calendar[Calendar.MONTH]
-        calendar[Calendar.MONTH] = month + 3
+        val second = calendar[Calendar.SECOND]
+        val day = calendar[Calendar.DAY_OF_MONTH]
+        calendar[Calendar.SECOND] = second + 10
+        //calendar[Calendar.DAY_OF_MONTH] = day + 1
+        if (System.currentTimeMillis() > calendar[Calendar.SECOND]){
+            calendar[Calendar.SECOND] = second + 10
+        }
+
         alarmmanager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, 0, pendingIntent)
     }
 

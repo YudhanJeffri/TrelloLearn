@@ -39,6 +39,7 @@ class TaskAdapter(options: FirestoreRecyclerOptions<TaskModel>, val context: Con
         val snapshot = snapshots.getSnapshot(holder.adapterPosition)
         val tinyDB = TinyDB(context)
         val getID = snapshot.id
+        tinyDB.putString("idsnapshot",getID)
         holder.textTask.text = model.title
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)
@@ -51,33 +52,44 @@ class TaskAdapter(options: FirestoreRecyclerOptions<TaskModel>, val context: Con
                         if (document != null) {
                             val y = document.getString("tanggal_masadepan")
                             Log.d("tanggal_masadepan", y.toString())
-                            Log.d("tanggal_sekarang",date)
-                            if (y == date){
-                                val cl = Calendar.getInstance()
-                                val yearl = cl.get(Calendar.YEAR)
-                                val dayl = cl.get(Calendar.DAY_OF_MONTH)
-                                val monthly = cl.get(Calendar.MONTH)
-                                val dately = "$dayl/${monthly + 4}/$yearl"
+                            Log.d("tanggal_sekarang", date)
+                            val gethari = document.getString("hari_masadepan")
+                            val getbulan = document.getString("bulan_masadepan")
+                            val gettahun = document.getString("tahun_masadepan")
 
-                                val task = hashMapOf("tanggal_masadepan" to dately)
-                                //Toast.makeText(this, newmonth.toString(), Toast.LENGTH_LONG).show()
-                                mFirebaseFirestore.collection(userID).document(tinyDB.getInt("getUmur").toString()).collection(userID).document(getID)
-                                        .update(task as Map<String, Any>)
-                                        .addOnSuccessListener { documentreference ->
-                                            Toast.makeText(context, "Tanggal berubah!", Toast.LENGTH_LONG).show()
-                                        }
-                                        .addOnFailureListener {
-                                            Toast.makeText(context, "gagal merubah tanggal", Toast.LENGTH_LONG).show()
-                                        }
-                                val intent = Intent()
-                                intent.putExtra("samaaaaaaaaaa",1)
-                                Log.d("tanggal_sekarang","tanggal sama (true)")
-                            } else {
-                                val intent = Intent()
-                                intent.putExtra("samaaaaaaaaaa",0)
-                                Log.d("tanggal_sekarang","tanggal tidak sama (falsse)")
+                            Log.d("tanggal_masadepan", y.toString())
+                            Log.d("tanggal_sekarang", date)
+                            if (gethari != null && getbulan != null) {
+                                if (gethari <= day.toString() || getbulan <= month.toString()) {
+                                    val cl = Calendar.getInstance()
+                                    val yearl = cl.get(Calendar.YEAR)
+                                    val dayl = cl.get(Calendar.DAY_OF_MONTH)
+                                    val monthly = cl.get(Calendar.MONTH)
+                                    val dately = "${dayl + 1}/${monthly + 1}/$yearl"
+
+                                    val hari = "${day + 1}"
+                                    val bulan = "${month + 1}"
+                                    val tahun = "$year"
+                                    val task = hashMapOf("tanggal_masadepan" to date, "hari_masadepan" to hari, "bulan_masadepan" to bulan, "tahun_masadepan" to tahun)
+                                    //Toast.makeText(this, newmonth.toString(), Toast.LENGTH_LONG).show()
+                                    mFirebaseFirestore.collection(userID).document(tinyDB.getInt("getUmur").toString()).collection(userID).document(getID)
+                                            .update(task as Map<String, Any>)
+                                            .addOnSuccessListener { documentreference ->
+                                                Toast.makeText(context, "Tanggal berubah!", Toast.LENGTH_LONG).show()
+                                            }
+                                            .addOnFailureListener {
+                                                Toast.makeText(context, "gagal merubah tanggal", Toast.LENGTH_LONG).show()
+                                            }
+                                    val intent = Intent()
+                                    intent.putExtra("samaaaaaaaaaa", 1)
+                                    Log.d("tanggal_sekarang", "tanggal sama (true)")
+                                } else {
+                                    val intent = Intent()
+                                    intent.putExtra("samaaaaaaaaaa", 0)
+                                    Log.d("tanggal_sekarang", "tanggal tidak sama (falsse)")
+                                }
                             }
-                        } else {
+                        }else {
                             Log.e("error", "No such document")
                         }
                     }

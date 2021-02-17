@@ -14,37 +14,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnnnn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="button"
-        android:text="notif 10 detik"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/fab_create_board"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_position" />
-
-    <TextView
-        android:id="@+id/text_dummy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="dummy"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/text_position"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="position"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_dummy" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_create_board"
         android:layout_width="wrap_content"
